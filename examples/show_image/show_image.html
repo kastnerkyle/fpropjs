@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noindex, nofollow">
+  <script type="text/javascript" src="/js/lib/dummy.js"></script>
+  <link rel="stylesheet" type="text/css" href="/css/result-light.css">
+  <script type="text/javascript" src="https://rawgit.com/nicolaspanel/numjs/893016ec40e62eaaa126e1024dbe250aafb3014b/dist/numjs.min.js"></script>
+  <style type="text/css">
+    .il {
+  display: inline-block;
+}
+h4 {
+  margin-bottom: 5px;
+}
+  </style>
+  <title>NumJS - Images demo by nicolaspanel</title>
+<script type='text/javascript'>//<![CDATA[
+window.onload=function(){
+// NOTE: NumJs is available globally under the name 'nj'
+var size = 150;
+
+function loadImage(src) {
+  var $image = new Image();
+    $image.crossOrigin = 'Anonymous';
+  $image.onload = function() {
+    var W, H;
+    if ($image.width < $image.height){
+      W = ~~(size * $image.width / $image.height);
+      H = ~~(size);
+    }
+    else{
+      H = ~~(size * $image.height / $image.width);
+      W = ~~(size);
+    }
+    var start = new Date().valueOf();
+    // process images
+    var img = nj.images.read($image),
+          gray = nj.images.rgb2gray(img),
+        flipped = img.slice(null, [null,null,-1]),
+        scharr = nj.images.scharr(gray), // scharr is a edge detector, like sobel
+        resized = nj.images.resize(img, H / 2, W / 2),
+        zoomed = img.slice([img.shape[0] / 4 | 0, 3 * img.shape[0] / 4 | 0],
+                           [img.shape[1] / 4 | 0, 3 * img.shape[1] / 4 | 0]),
+        duration = new Date().valueOf() - start;
+    
+    // display images in canvas
+    var $original = document.getElementById('original');
+    $original.width = W; $original.height = H;
+    nj.images.save(img, $original);
+
+    var $gray = document.getElementById('grayscale');
+    $gray.width = W; $gray.height = H;
+    nj.images.save(gray, $gray);
+
+    var $edges = document.getElementById('edges');
+    $edges.width = W; $edges.height = H;
+    nj.images.save(scharr, $edges);
+
+    var $flipped = document.getElementById('flipped');
+    $flipped.width = W; $flipped.height = H;
+    nj.images.save(flipped, $flipped);
+
+    var $resized = document.getElementById('resized');
+    $resized.width = resized.shape[1]; $resized.height = resized.shape[0];
+    nj.images.save(resized, $resized);
+
+    var $zoomed = document.getElementById('zoomed');
+    $zoomed.width = W; $zoomed.height  = H;
+    nj.images.save(zoomed, $zoomed);
+    
+    document.getElementById('duration').textContent =''+duration;
+    document.getElementById('h').textContent =''+img.shape[0];
+    document.getElementById('w').textContent =''+img.shape[1];
+    
+  };
+
+  $image.src = src;
+}
+
+function handleFileSelect(e) {
+  var file = e.target.files[0];
+  var reader = new FileReader();
+
+  reader.onload = function(e) {
+    loadImage(e.target.result);
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById('file').addEventListener('change', handleFileSelect, false);
+
+loadImage('https://upload.wikimedia.org/wikipedia/en/2/24/Lenna.png');
+}//]]> 
+
+</script>
+</head>
+
+<body>
+  <h3>Read/manipulate/display images using NumJs</h3>
+
+<input type="file" id="file" name="file">
+<div>
+  <h3>Original image (h<span id="h"></span>, w<span id="w"></span>)</h3>
+  <canvas id="original"></canvas>
+</div>
+<div>
+  <div class="il">
+    <h4>Grayscaled</h4>
+    <canvas id="grayscale"></canvas>
+  </div>
+  <div class="il">
+    <h4>Edges</h4>
+    <canvas id="edges"></canvas>
+  </div>
+  <div class="il">
+    <h4>Flipped</h4>
+    <canvas id="flipped"></canvas>
+  </div>
+  <div class="il">
+    <h4>Resized</h4>
+    <canvas id="resized"></canvas>
+  </div>
+  <div class="il">
+    <h4>Zoomed</h4>
+    <canvas id="zoomed"></canvas>
+  </div>
+</div>
+<p >Processing took <span id="duration"></span>ms</p>
+  
+  <script>
+  // tell the embed parent frame the height of the content
+  if (window.parent && window.parent.parent){
+    window.parent.parent.postMessage(["resultsFrame", {
+      height: document.body.getBoundingClientRect().height,
+      slug: "047gwg0q"
+    }], "*")
+  }
+</script>
+</body>
+</html>
